@@ -1,0 +1,20 @@
+# Bỏ qua các thư mục chứa file biên dịch của KeilC
+Objects/
+Listings/
+DebugConfig/
+
+# Bỏ qua các file cấu hình giao diện người dùng cá nhân (chỉ giữ lại file project gốc)
+*.uvoptx
+*.uvguix.*
+
+# Bỏ qua các file rác biên dịch (nếu chúng lọt ra ngoài)
+*.o
+*.d
+*.crf
+*.axf
+*.map
+*.hex
+*.lnp
+*.sct
+*.htm
+*.dep
