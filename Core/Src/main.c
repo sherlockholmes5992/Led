@@ -23,6 +23,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "led_effect.h"
+#include "button.h"   // Thêm thu vi?n nút nh?n m?i vào dây
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -45,6 +46,9 @@ UART_HandleTypeDef huart1;
 /* USER CODE BEGIN PV */
 uint8_t sta_button = 1; // Khai báo chính th?c bi?n sta_button ? dây
 uint8_t count = 0;      // Thêm luôn bi?n count n?u b?n có dùng extern ? file khác
+// Khai báo các d?i tu?ng nút nh?n
+Button_t button_mode;
+Button_t button_speed;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -52,7 +56,9 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART1_UART_Init(void);
 /* USER CODE BEGIN PFP */
-
+// Khai báo các hàm callback x? lý s? ki?n riêng cho t?ng nút
+void mode_pressing_handler(void);
+void speed_pressing_handler(void);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -87,7 +93,14 @@ int main(void)
   MX_GPIO_Init();
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
-  LED_Chase_Init(100); // G??i hàm kh?i t?o hi?u ?ng c?a b?n (n?u có)
+  LED_Chase_Init(1000); // G??i hàm kh?i t?o hi?u ?ng c?a b?n (n?u có)
+	// Kh?i t?o nút s? 1 ? chân PA5
+  Button_Init(&button_mode, GPIOA, GPIO_PIN_5);
+  Button_Register_Callback(&button_mode, mode_pressing_handler, NULL, NULL, NULL);
+  
+  // Kh?i t?o nút s? 2 ? chân PA7 (ví d? b?n g?n thêm nút)
+  Button_Init(&button_speed, GPIOA, GPIO_PIN_7);
+  Button_Register_Callback(&button_speed, speed_pressing_handler, NULL, NULL, NULL);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -98,8 +111,10 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 	  LED_Chase_Execute(); // G??i duy nh?t hàm th?c thi thu?t toán ? dây!
-	  button_handle();
 		led_handle();
+		// Quét liên t?c tr?ng thái c?a c? 2 nút nh?n
+      Button_Process(&button_mode);
+      Button_Process(&button_speed);
   }
   /* USER CODE END 3 */
 }
@@ -223,7 +238,19 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+// Callback c?a nút mode (PA5) - Chuy?n d?i tr?ng thái blink
+void mode_pressing_handler(void) {
+    switch(led_status) {
+        case LED_OFF:         led_status = LED1_BLINK_1HZ; break;
+        case LED1_BLINK_1HZ:  led_status = LED2_BLINK_5HZ; break;
+        case LED2_BLINK_5HZ:  led_status = LED_OFF;        break;
+    }
+}
 
+// Callback c?a nút speed (PA7) - Thay d?i t?c d? ch?ng h?n
+void speed_pressing_handler(void) {
+    // Logic x? lý khi nút speed du?c nh?n
+}
 /* USER CODE END 4 */
 
 /**
